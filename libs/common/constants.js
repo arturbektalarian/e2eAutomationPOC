@@ -2,6 +2,7 @@ export default {
     timeout: {
         ONE_SECOND_TIMEOUT: 1000,
         SHORT_TIMEOUT: 3000,
+        FIVE_SECONDS_TIMEOUT: 5000,
         MIDDLE_TIMEOUT: 6000,
         LONG_TIMEOUT: 30000
     },

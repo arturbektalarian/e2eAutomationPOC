@@ -15,6 +15,6 @@ describe('Awesome Table Connector sheet add-on ->', () => {
             Constants.googleSheets.allDataConnectors.SHEET_ID)
         await (await GoogleSheet.containerDocsEditor).waitForDisplayed()
         await GoogleSheet.openATConnectorAddon()
-        await browser.pause(10000) // pause for demo
+        await browser.pause(15000) // pause for demo
     });
 });

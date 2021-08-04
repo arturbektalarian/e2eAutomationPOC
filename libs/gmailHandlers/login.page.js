@@ -6,6 +6,7 @@ import fs from 'fs'
 const PATH_FOR_CODES = './libs/common/codes.json'
 let codeNumber
 let index
+let tryAnotherWay = 'Try another way'
 
 
 /**
@@ -19,10 +20,11 @@ class LoginPage extends Page {
     get btnNext () { return $('#identifierNext') }
     get inputPassword () { return $(`input[name='password']`) }
     get btnPwdNext () { return $('#passwordNext') }
+    get textLanguage () { return $(`#lang-chooser [aria-selected='true'] span`)}
 
     // handle with better css or xpath
-    get btnOtherOptionTooManyAttempts () { return $(`//button[text()='Другой способ']`) }
-    get btnOtherOption () { return $(`//span[text()='Другой способ']`) }
+    get btnOtherOptionTooManyAttempts () { return $(`//button[text()='${tryAnotherWay}']`) }
+    get btnOtherOption () { return $(`//span[text()='${tryAnotherWay}']`) }
 
     get btnChallengeTypeEight () { return $(`[data-challengetype='8']`)}
     get inputBackUpPin () { return $('#backupCodePin')}
@@ -42,6 +44,9 @@ class LoginPage extends Page {
         if(typeof(password) === 'undefined')
             password = process.env.PASSWORD
         await (await this.inputUsername).waitForDisplayed()
+        if(await (await (await this.textLanguage).getText()).includes('Русский'))
+            tryAnotherWay = 'Другой способ'
+        await browser.pause(constants.timeout.ONE_SECOND_TIMEOUT)
         await (await this.inputUsername).setValue(username);
         await (await this.btnNext).click();
         await (await this.inputPassword).waitForDisplayed();
@@ -78,11 +83,12 @@ class LoginPage extends Page {
 
         await this.loginUsernameAndPassword(username, password)
         // pause to avoid google challenge by automation
-        await browser.pause(constants.timeout.MIDDLE_TIMEOUT)
+        await browser.pause(constants.timeout.FIVE_SECONDS_TIMEOUT)
         if(await (await this.btnChallengeTypeEight).isDisplayed())
             await (await this.btnChallengeTypeEight).click()
         else {
             try {
+                console.log('HERE IS THE ELEMENT ' + tryAnotherWay + ' lalala' + JSON.stringify(this.btnOtherOptionTooManyAttempts))
                 if(await (await this.btnOtherOptionTooManyAttempts).isDisplayed()) {
                     await (await this.btnOtherOptionTooManyAttempts).click()
                     await (await this.btnChallengeTypeEight).click()

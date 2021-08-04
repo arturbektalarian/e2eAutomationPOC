@@ -1,6 +1,41 @@
 import LoginPage from './libs/gmailHandlers/login.page'
 import UpdateAuthCodes from './libs/gmailHandlers/updateAuthCodes'
 
+const chromeProfile = {
+    args: ['disable-web-security',
+    'allow-running-insecure-content',
+    'user-data-dir="/Users/arturdjumaniyazov/Library/Application\ Support/Google/Chrome/Profile\ 2"']
+}
+const chromeOptions = process.env.CHROME_PROFILE === 'true' ? chromeProfile : {}
+
+const serviceName = [
+    [
+        'chromedriver', 
+        {
+            logFileName: 'wdio-chromedriver.log', // default
+            outputDir: 'driver-logs', // overwrites the config.outputDir
+            applicationCacheEnabled: false,
+            args: [
+                '--silent'
+            ]
+        }
+    ],
+    [
+        'selenium-standalone', 
+        { 
+        drivers: 
+            { 
+                firefox: '0.29.1', 
+                chrome: '92.0.4515.43', 
+                chromiumedge: 'latest', 
+                safari: 'latest' 
+            } 
+        }
+    ]
+]
+
+const serviceType = process.env.SERVICE === 'standalone' ? serviceName[1] : serviceName[0]
+
 exports.config = {
     //
     // ====================
@@ -27,7 +62,7 @@ exports.config = {
     // will be called from there.
     //
     specs: [
-        './test/specs/update*.e2e.js'
+        './test/specs/gmailSignIn*.e2e.js'
     ],
     // Patterns to exclude.
     exclude: [
@@ -64,6 +99,9 @@ exports.config = {
         //
         browserName: 'chrome',
         acceptInsecureCerts: false,
+        'goog:chromeOptions' : chromeOptions
+
+
         // If outputDir is provided WebdriverIO can capture driver session logs
         // it is possible to configure which logTypes to include/exclude.
         // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
@@ -117,7 +155,7 @@ exports.config = {
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
     services: [
-        ['selenium-standalone', { drivers: { firefox: '0.29.1', chrome: '92.0.4515.43', chromiumedge: 'latest', safari: 'latest' } }]
+        serviceType
     ],
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -219,8 +257,8 @@ exports.config = {
      */
     beforeSuite: async function (suite) {
         LoginPage.open()
-        await browser.maximizeWindow()
-        await LoginPage.login()
+        if(process.env.CHROME_PROFILE !== 'true')
+            await LoginPage.login()
     },
     /**
      * Function to be executed before a test (in Mocha/Jasmine) starts.
